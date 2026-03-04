@@ -11,14 +11,20 @@ type GlobalMatch struct {
 }
 
 type GrepRequest struct {
-	Pattern   string
-	InputData []string
+	Pattern    string
+	InputData  []string
+	Fixed      bool
+	IgnoreCase bool
+	Invert     bool
 }
 
 type ChunkRequest struct {
-	ChunkID int
-	Lines   []string
-	Pattern string
+	ChunkID    int
+	Lines      []string
+	Pattern    string
+	Fixed      bool
+	IgnoreCase bool
+	Invert     bool
 }
 
 type ChunkResponse struct {

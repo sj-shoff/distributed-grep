@@ -1,25 +1,13 @@
+// internal/config/flags.go
+// Парсинг CLI флагов: метод ParseFlags overrides Config.
+
 package config
 
 import (
 	"flag"
 )
 
-type Flags struct {
-	ServerMode bool
-	Addr       string
-	Addrs      string
-	Fixed      bool
-	IgnoreCase bool
-	Invert     bool
-	LineNum    bool
-	After      int
-	Before     int
-	Context    int
-	Count      bool
-	Args       []string
-}
-
-func ParseFlags(cfg *Config) *Flags {
+func ParseFlags(cfg *Config) {
 	serverMode := flag.Bool("server", false, "Run in server mode")
 	addr := flag.String("addr", "", "Address to listen on in server mode")
 	addrsStr := flag.String("addrs", "", "Comma-separated list of server addresses (client mode)")
@@ -35,10 +23,16 @@ func ParseFlags(cfg *Config) *Flags {
 
 	flag.Parse()
 
-	return &Flags{
-		ServerMode: *serverMode,
-		Addr:       *addr,
-		Addrs:      *addrsStr,
+	cfg.ServerMode = *serverMode
+	cfg.Addr = *addr
+	if cfg.Addr == "" {
+		cfg.Addr = cfg.ServerAddr
+	}
+	cfg.Addrs = *addrsStr
+	if cfg.Addrs == "" {
+		cfg.Addrs = cfg.DefaultAddrs
+	}
+	cfg.GrepOptions = GrepOptions{
 		Fixed:      *fixed,
 		IgnoreCase: *ignoreCase,
 		Invert:     *invert,
@@ -47,6 +41,6 @@ func ParseFlags(cfg *Config) *Flags {
 		Before:     *before,
 		Context:    *context,
 		Count:      *count,
-		Args:       flag.Args(),
 	}
+	cfg.Args = flag.Args()
 }

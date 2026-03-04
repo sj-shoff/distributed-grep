@@ -1,0 +1,70 @@
+syntax = "proto3";
+
+package dgrep.v1;
+
+option go_package = "dgrep/internal/proto";
+
+message GrepOptions {
+  bool fixed = 1;
+  bool ignore_case = 2;
+  bool invert = 3;
+  bool line_num = 4;
+  int32 after = 5;
+  int32 before = 6;
+  int32 context = 7;
+  bool count = 8;
+}
+
+message ChunkRequest {
+  int32 chunk_id = 1;
+  repeated string lines = 2;
+  string pattern = 3;
+  GrepOptions options = 4;
+}
+
+message Match {
+  int32 line_num = 1;
+  string text = 2;
+  repeated string context = 3;
+}
+
+message ChunkResponse {
+  int32 chunk_id = 1;
+  repeated Match matches = 2;
+  optional string error = 3;
+}
+
+message SearchRequest {
+  string pattern = 1;
+  repeated string input_data = 2;
+  GrepOptions options = 3;
+}
+
+message SearchResponse {
+  repeated Match matches = 1;
+  int64 total_count = 2;
+}
+
+message HealthCheckRequest {
+  string service = 1;
+}
+
+message HealthCheckResponse {
+  enum ServingStatus {
+    UNKNOWN = 0;
+    SERVING = 1;
+    NOT_SERVING = 2;
+  }
+  ServingStatus status = 1;
+}
+
+service GrepService {
+  rpc ProcessChunk(ChunkRequest) returns (ChunkResponse) {}
+  rpc SearchStream(SearchRequest) returns (stream Match) {}
+  rpc Check(HealthCheckRequest) returns (HealthCheckResponse) {}
+}
+
+service Health {
+  rpc Check(HealthCheckRequest) returns (HealthCheckResponse) {};
+  rpc Watch(HealthCheckRequest) returns (stream HealthCheckResponse) {};
+}
